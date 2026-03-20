@@ -1,13 +1,8 @@
 <script lang="ts">
   import { type MessageNode } from 'archipelago.js';
-  import { onMount } from 'svelte';
 
   const { parts }: { parts: MessageNode[] } = $props();
   let element = $state<HTMLDivElement>();
-
-  onMount(() => {
-    element?.scrollIntoView();
-  });
 </script>
 
 <div bind:this={element}>

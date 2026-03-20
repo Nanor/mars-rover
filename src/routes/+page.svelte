@@ -5,8 +5,9 @@
   import Players from '$lib/components/players/List.svelte';
 
   let connected = $state(false);
+  let host = $state('');
 
-  const { connect, disconnect, log, players, items } = createClient();
+  const { connect, disconnect, messages, players, items } = createClient();
 
   const handleSubmit = (
     e: SubmitEvent & {
@@ -18,9 +19,11 @@
       const data = new FormData(e.currentTarget);
 
       const player = (data.get('player') as string) || 'Player1';
-      const host = (data.get('host') as string) || 'localhost:38281';
-      connect({ player, host });
+      const h = (data.get('host') as string) || 'localhost:38281';
+      connect({ player, host: h });
+
       connected = true;
+      host = h;
     }
   };
 
@@ -48,8 +51,8 @@
   {/if}
 
   <div class="main">
-    <Log {log} />
-    <Players {players} />
+    <Log {messages} />
+    <Players {players} connect={(player) => connect({ player, host })} />
 
     <div class="items">
       <Items {items} />

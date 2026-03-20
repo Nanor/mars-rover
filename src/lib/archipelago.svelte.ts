@@ -1,59 +1,77 @@
-import {
-  Client,
-  clientStatuses,
-  type Item,
-  type MessageNode,
-  type NetworkSlot,
-} from 'archipelago.js';
+import { Client, type Item, type MessageNode, type NetworkSlot } from 'archipelago.js';
 
 type ArchipelagoClientConfig = {
   player: string;
+  password?: string;
   host: string;
 };
 
 export type Player = NetworkSlot & {
   id: number;
+  connected: boolean;
 };
 
 export const createClient = () => {
-  const client = new Client();
+  let clients: { client: Client; disconnect: () => void }[] = [];
 
-  const log = $state<MessageNode[][]>([]);
-  const players = $state<Player[]>([]);
+  const messages = $state<Record<string, MessageNode[][]>>({});
+  const players = $state<Record<string, Player>>({});
   const items = $state<Item[]>([]);
 
-  const connect = (config: ArchipelagoClientConfig) => {
+  const connect = ({ player, host, password }: ArchipelagoClientConfig) => {
+    messages[player] = [];
+
+    const handleMessage = (_: string, nodes: MessageNode[]) => {
+      messages[player].push(nodes);
+    };
+    const handleItemsReceived = (is: Item[]): void => {
+      items.push(...is);
+    };
+
+    const client = new Client();
     client
-      .login(config.host, config.player, '', {
-        tags: ['tracker'],
+      .login(host, player, password || '', {
+        tags: ['tracker', 'mars-rover'],
       })
       .then(async () => {
-        client.messages.on('message', (_, nodes) => {
-          log.push(nodes);
-        });
+        client.messages.on('message', handleMessage);
 
-        players.push(
-          ...Object.entries(client.players.slots).map(([id, p]) => ({ id: Number(id), ...p }))
-        );
+        Object.entries(client.players.slots).forEach(([id, p]) => {
+          players[id] = {
+            id: Number(id),
+            connected: p.name === player || players[id]?.connected,
+            ...p,
+          };
+        });
 
         items.push(...client.items.received);
-
-        client.items.on('itemsReceived', (is) => {
-          items.push(...is);
-        });
+        client.items.on('itemsReceived', handleItemsReceived);
       })
       .catch(console.error);
+
+    const disconnect = () => {
+      client.messages.off('message', handleMessage);
+      client.items.off('itemsReceived', handleItemsReceived);
+
+      client.socket.disconnect();
+    };
+
+    clients.push({ client, disconnect });
   };
 
   const disconnect = () => {
-    client.updateStatus(clientStatuses.disconnected);
+    for (const { disconnect } of clients) {
+      disconnect();
+    }
+    clients = [];
+    items.splice(0, items.length);
   };
 
   return {
     connect,
     disconnect,
-    get log() {
-      return log;
+    get messages() {
+      return messages;
     },
     get players() {
       return players;
