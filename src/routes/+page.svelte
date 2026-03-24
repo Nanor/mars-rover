@@ -51,11 +51,11 @@
   {/if}
 
   <div class="main">
-    <Log {messages} />
+    <Log {messages} {players} />
     <Players {players} {connections} connect={(player) => connect({ player, host })} />
 
     <div class="items">
-      <Items {items} />
+      <Items {items} {players} />
     </div>
   </div>
 </form>

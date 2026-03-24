@@ -1,8 +1,12 @@
 <script lang="ts">
-  import { type MessageNode } from 'archipelago.js';
+  import type { Player, MessageNode } from 'archipelago.js';
   import Message from './Message.svelte';
+  import PlayerComponent from '../players/Player.svelte';
 
-  const { messages }: { messages: Record<string, MessageNode[][]> } = $props();
+  const {
+    messages,
+    players,
+  }: { messages: Record<string, MessageNode[][]>; players: Record<string, Player> } = $props();
 
   let activePlayer = $state('');
 
@@ -23,11 +27,13 @@
 
 <div>
   <h2>Log</h2>
-  {#each Object.keys(messages) as player (player)}
-    {#if activePlayer === player}
-      <span>{player}</span>
+  {#each Object.keys(messages) as name (name)}
+    {#if activePlayer === name}
+      <PlayerComponent player={players[name]} />
     {:else}
-      <button type="button" onclick={() => (activePlayer = player)}>{player}</button>
+      <button type="button" onclick={() => (activePlayer = name)}>
+        <PlayerComponent player={players[name]} />
+      </button>
     {/if}
   {/each}
   <div class="log" bind:this={element}>

@@ -15,8 +15,9 @@
   {#each Object.values(players) as player (player.slot)}
     <div>
       <PlayerComponent {player} />
+      {#if !connections.includes(player.name)}
+        <button type="button" onclick={() => connect(player.name)}>Connect</button>
+      {/if}
     </div>
-    {#if !connections.includes(player.name)}
-      <button type="button" onclick={() => connect(player.name)}>Connect</button>{/if}
   {/each}
 </div>

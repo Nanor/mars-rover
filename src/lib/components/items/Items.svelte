@@ -1,12 +1,13 @@
 <script lang="ts">
-  import { type Item, type Player } from 'archipelago.js';
+  import { type Player } from 'archipelago.js';
   import PlayerComponent from '../players/Player.svelte';
+  import type { ReceivedItem } from '$lib/archipelago.svelte';
 
-  const { items }: { items: Item[] } = $props();
+  const { items, players }: { items: ReceivedItem[]; players: Record<string, Player> } = $props();
 
   type ItemRow = {
     id: number;
-    receiver: Player;
+    receiver: string;
     name: string;
     count: number;
     filler: boolean;
@@ -17,15 +18,13 @@
 
   const received = $derived(
     items.reduce<ItemRow[]>((acc, item) => {
-      const prev = acc.find((i) => i.id === item.id);
-      const rest = acc.filter((i) => i.id !== item.id);
+      const prev = acc.find((i) => i.id === item.id && i.receiver === item.receiver);
+      const rest = acc.filter((i) => !(i.id === item.id && i.receiver === item.receiver));
 
       return [
         ...rest,
         {
-          id: item.id,
-          receiver: item.receiver,
-          name: item.name,
+          ...item,
           count: prev ? prev.count + 1 : 1,
           filler: prev?.filler || item.filler,
           useful: prev?.useful || item.useful,
@@ -49,14 +48,14 @@
       </tr>
     </thead>
     <tbody>
-      {#each received.toReversed() as item (`${item.id}-${item.receiver.name}`)}
+      {#each received.toReversed() as item (`${item.id}-${item.receiver}`)}
         <tr
           class:filler={item.filler}
           class:useful={item.useful}
           class:progression={item.progression}
           class:trap={item.trap}
         >
-          <td><PlayerComponent player={item.receiver} /></td>
+          <td><PlayerComponent player={players[item.receiver]} /></td>
           <td>{item.count}</td>
           <td class="name">{item.name}</td>
         </tr>

@@ -4,4 +4,4 @@
   const { player }: { player: Player } = $props();
 </script>
 
-<span title={`Game: ${player.game}`}>{player.alias || player.name}</span>
+<span title={`Game: ${player.game}`}>{player.alias}</span>
