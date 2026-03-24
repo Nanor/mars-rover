@@ -5,9 +5,14 @@
   const {
     players,
     connections,
-    connect,
-  }: { players: Record<string, Player>; connections: string[]; connect: (name: string) => void } =
-    $props();
+    addPlayer,
+    removePlayer,
+  }: {
+    players: Record<string, Player>;
+    connections: string[];
+    addPlayer: (name: string) => void;
+    removePlayer: (name: string) => void;
+  } = $props();
 </script>
 
 <div>
@@ -15,8 +20,14 @@
   {#each Object.values(players) as player (player.slot)}
     <div>
       <PlayerComponent {player} />
-      {#if !connections.includes(player.name)}
-        <button type="button" onclick={() => connect(player.name)}>Connect</button>
+      {#if connections.includes(player.name)}
+        <button
+          type="button"
+          disabled={connections.length === 1}
+          onclick={() => removePlayer(player.name)}>Disconnect</button
+        >
+      {:else}
+        <button type="button" onclick={() => addPlayer(player.name)}>Connect</button>
       {/if}
     </div>
   {/each}

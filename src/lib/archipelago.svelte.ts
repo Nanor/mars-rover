@@ -1,4 +1,5 @@
-import { Client, type Item, type MessageNode, type Player } from 'archipelago.js';
+import { Client, type DataPackage, type Item, type MessageNode, type Player } from 'archipelago.js';
+import { SvelteSet } from 'svelte/reactivity';
 
 type ArchipelagoClientConfig = {
   player: string;
@@ -17,8 +18,26 @@ export type ReceivedItem = {
   trap: boolean;
 };
 
+const saveToStorage = (type: string, seed: string, data: object) => {
+  localStorage.setItem(`${type}-${seed}`, JSON.stringify(data));
+};
+
+const loadFromStorage = <T>(type: string, seed: string): T | null => {
+  const str = localStorage.getItem(`${type}-${seed}`);
+  if (str) {
+    try {
+      return JSON.parse(str);
+    } catch {
+      return null;
+    }
+  }
+
+  return null;
+};
+
 export const createClient = () => {
   let clients: { client: Client; disconnect: () => void }[] = [];
+  let seed: string;
 
   const messages = $state<Record<string, MessageNode[][]>>({});
   const players = $state<Record<string, Player>>({});
@@ -26,6 +45,8 @@ export const createClient = () => {
   const items = $state<ReceivedItem[]>([]);
 
   const connect = ({ player, host, password }: ArchipelagoClientConfig) => {
+    if (connections.includes(player)) return;
+
     const handleMessage = (_: string, nodes: MessageNode[]) => {
       messages[player].push(nodes);
     };
@@ -52,6 +73,8 @@ export const createClient = () => {
 
         index += 1;
       }
+
+      saveToStorage('items', client.room.seedName, items);
     };
 
     const handleAliasUpdated = (player: Player) => {
@@ -59,12 +82,22 @@ export const createClient = () => {
     };
 
     const client = new Client();
+    client.options.autoFetchDataPackage = false;
     client
-      .login(host, player, '', {
+      .login(clients?.[0]?.client.socket.url || host, player, '', {
         tags: ['tracker', 'mars-rover'],
         password: password || '',
       })
       .then(async () => {
+        seed = client.room.seedName;
+
+        const dataPackage = loadFromStorage<DataPackage>('dataPackage', seed);
+        if (dataPackage) {
+          client.package.importPackage(dataPackage);
+        }
+        await client.package.fetchPackage();
+        saveToStorage('dataPackage', seed, client.package.exportPackage());
+
         messages[player] = [];
         client.messages.on('message', handleMessage);
 
@@ -76,10 +109,26 @@ export const createClient = () => {
         });
         client.players.on('aliasUpdated', handleAliasUpdated);
 
+        if (items.length === 0) {
+          const is = loadFromStorage<ReceivedItem[]>('items', seed);
+          if (is) {
+            items.push(...is);
+          }
+        }
         handleItemsReceived(client.items.received, 0);
         client.items.on('itemsReceived', handleItemsReceived);
 
         connections.push(player);
+
+        const savedConnections = loadFromStorage<string[]>('connections', seed);
+        if (savedConnections) {
+          const allConnections = new SvelteSet([...connections, ...savedConnections]);
+          for (const c of allConnections) {
+            connect({ player: c, host: client.socket.url, password });
+          }
+        }
+
+        saveToStorage('connections', seed, connections);
       })
       .catch(console.error);
 
@@ -100,6 +149,9 @@ export const createClient = () => {
     }
     clients = [];
     items.splice(0, items.length);
+    connections.splice(0, connections.length);
+    Object.keys(players).forEach((player) => delete players[player]);
+    Object.keys(messages).forEach((player) => delete messages[player]);
   };
 
   return {
@@ -116,6 +168,27 @@ export const createClient = () => {
     },
     get connections() {
       return connections;
+    },
+    addPlayer: (player: string) => {
+      if (clients.length === 0) {
+        throw new Error('Call connect first');
+      }
+      connect({
+        player,
+        host: clients[0].client.socket.url,
+        password: clients[0].client.arguments.password,
+      });
+    },
+    removePlayer: (player: string) => {
+      for (const { client, disconnect } of clients) {
+        if (client.name === player) {
+          disconnect();
+        }
+      }
+      clients = clients.filter((c) => c.client.name !== player);
+      connections.splice(connections.indexOf(player), 1);
+      saveToStorage('connections', seed, connections);
+      delete messages[player];
     },
   };
 };

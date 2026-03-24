@@ -4,10 +4,12 @@
   import Log from '$lib/components/log/Log.svelte';
   import Players from '$lib/components/players/List.svelte';
 
-  let connected = $state(false);
-  let host = $state('');
+  const { connect, disconnect, messages, players, items, connections, addPlayer, removePlayer } =
+    createClient();
 
-  const { connect, disconnect, messages, players, items, connections } = createClient();
+  let connected = $state(false);
+
+  const shownItems = $derived(items.filter((i) => connections.includes(i.receiver)));
 
   const handleSubmit = (
     e: SubmitEvent & {
@@ -21,9 +23,7 @@
       const player = (data.get('player') as string) || 'Player1';
       const h = (data.get('host') as string) || 'localhost:38281';
       connect({ player, host: h });
-
       connected = true;
-      host = h;
     }
   };
 
@@ -52,10 +52,10 @@
 
   <div class="main">
     <Log {messages} {players} />
-    <Players {players} {connections} connect={(player) => connect({ player, host })} />
+    <Players {players} {connections} {addPlayer} {removePlayer} />
 
     <div class="items">
-      <Items {items} {players} />
+      <Items items={shownItems} {players} />
     </div>
   </div>
 </form>
