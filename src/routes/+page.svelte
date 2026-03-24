@@ -7,7 +7,7 @@
   let connected = $state(false);
   let host = $state('');
 
-  const { connect, disconnect, messages, players, items } = createClient();
+  const { connect, disconnect, messages, players, items, connections } = createClient();
 
   const handleSubmit = (
     e: SubmitEvent & {
@@ -52,7 +52,7 @@
 
   <div class="main">
     <Log {messages} />
-    <Players {players} connect={(player) => connect({ player, host })} />
+    <Players {players} {connections} connect={(player) => connect({ player, host })} />
 
     <div class="items">
       <Items {items} />

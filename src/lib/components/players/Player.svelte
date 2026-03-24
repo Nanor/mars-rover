@@ -1,0 +1,7 @@
+<script lang="ts">
+  import type { Player } from 'archipelago.js';
+
+  const { player }: { player: Player } = $props();
+</script>
+
+<span title={`Game: ${player.game}`}>{player.alias || player.name}</span>

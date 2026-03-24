@@ -1,4 +1,4 @@
-import { Client, type Item, type MessageNode, type NetworkSlot } from 'archipelago.js';
+import { Client, type Item, type MessageNode, type Player } from 'archipelago.js';
 
 type ArchipelagoClientConfig = {
   player: string;
@@ -6,16 +6,12 @@ type ArchipelagoClientConfig = {
   host: string;
 };
 
-export type Player = NetworkSlot & {
-  id: number;
-  connected: boolean;
-};
-
 export const createClient = () => {
   let clients: { client: Client; disconnect: () => void }[] = [];
 
   const messages = $state<Record<string, MessageNode[][]>>({});
   const players = $state<Record<string, Player>>({});
+  const connections = $state<string[]>([]);
   const items = $state<Item[]>([]);
 
   const connect = ({ player, host, password }: ArchipelagoClientConfig) => {
@@ -36,16 +32,17 @@ export const createClient = () => {
       .then(async () => {
         client.messages.on('message', handleMessage);
 
-        Object.entries(client.players.slots).forEach(([id, p]) => {
-          players[id] = {
-            id: Number(id),
-            connected: p.name === player || players[id]?.connected,
-            ...p,
-          };
+        Object.keys(client.players.slots).forEach(([key]) => {
+          const player = client.players.findPlayer(Number(key));
+          if (player) {
+            players[player.slot] = player;
+          }
         });
 
         items.push(...client.items.received);
         client.items.on('itemsReceived', handleItemsReceived);
+
+        connections.push(player);
       })
       .catch(console.error);
 
@@ -78,6 +75,9 @@ export const createClient = () => {
     },
     get items() {
       return items;
+    },
+    get connections() {
+      return connections;
     },
   };
 };

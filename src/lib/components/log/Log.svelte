@@ -1,7 +1,6 @@
 <script lang="ts">
   import { type MessageNode } from 'archipelago.js';
   import Message from './Message.svelte';
-  import { onMount } from 'svelte';
 
   const { messages }: { messages: Record<string, MessageNode[][]> } = $props();
 
