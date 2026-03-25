@@ -10,15 +10,12 @@
   const { item }: { item: Item } = $props();
 
   const itemClass = $derived(
-    item.trap
-      ? 'trap'
-      : item.progression
-        ? 'progression'
-        : item.useful
-          ? 'useful'
-          : item.filler
-            ? 'filler'
-            : 'none'
+    [
+      ...(item.trap ? ['trap'] : []),
+      ...(item.progression ? ['progression'] : []),
+      ...(item.useful ? ['useful'] : []),
+      ...(item.filler ? ['filler'] : []),
+    ].join(', ')
   );
 </script>
 

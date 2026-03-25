@@ -35,10 +35,39 @@
       ];
     }, [])
   );
+
+  let filtersOpen = $state(false);
+  const filters = $state({
+    trap: true,
+    filler: true,
+    useful: true,
+    progression: true,
+  });
+
+  const filteredItems = $derived(
+    received.filter(
+      (i) =>
+        (i.trap && filters.trap) ||
+        (i.filler && filters.filler) ||
+        (i.useful && filters.useful) ||
+        (i.progression && filters.progression)
+    )
+  );
 </script>
 
 <div>
-  <h2>Items</h2>
+  <div>
+    <h2>Items</h2>
+    {#if filtersOpen}
+      <button type="button" onclick={() => (filtersOpen = false)}>Close</button>
+      <label><input type="checkbox" bind:checked={filters.trap} />Traps</label>
+      <label><input type="checkbox" bind:checked={filters.filler} />Filler</label>
+      <label><input type="checkbox" bind:checked={filters.useful} />Useful</label>
+      <label><input type="checkbox" bind:checked={filters.progression} />Progression</label>
+    {:else}
+      <button type="button" onclick={() => (filtersOpen = true)}>Filters</button>
+    {/if}
+  </div>
 
   <table>
     <thead>
@@ -49,7 +78,7 @@
       </tr>
     </thead>
     <tbody>
-      {#each received.toReversed() as item (`${item.id}-${item.receiver}`)}
+      {#each filteredItems.toReversed() as item (`${item.id}-${item.receiver}`)}
         <tr
           class:filler={item.filler}
           class:useful={item.useful}
@@ -76,5 +105,9 @@
     position: sticky;
     top: 0;
     background-color: white;
+  }
+
+  h2 {
+    display: inline-block;
   }
 </style>

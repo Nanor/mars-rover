@@ -21,21 +21,24 @@
   };
 </script>
 
-<h1>MARS rover</h1>
-
 {#if !client.connected}
   <form onsubmit={handleSubmit}>
     <label>
       <span>Player:</span>
-      <input type="text" name="player" placeholder="Player1" />
+      <input type="text" name="player" placeholder="Player1" autocomplete="username" />
     </label>
     <label>
       <span>Host:</span>
-      <input type="text" name="host" placeholder="localhost:38281" />
+      <input type="text" name="host" placeholder="localhost:38281" autocomplete="url" />
     </label>
     <label>
       <span>Password:</span>
-      <input type="password" name="password" placeholder="Password" />
+      <input
+        type="password"
+        name="password"
+        placeholder="Password"
+        autocomplete="current-password"
+      />
     </label>
     <button type="submit">Connect</button>
   </form>
