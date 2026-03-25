@@ -94,15 +94,15 @@ export const createClient = () => {
         connected = true;
         seed = client.room.seedName;
 
+        messages[player] = [];
+        client.messages.on('message', handleMessage);
+
         const dataPackage = loadFromStorage<DataPackage>('dataPackage', seed);
         if (dataPackage) {
           client.package.importPackage(dataPackage);
         }
         await client.package.fetchPackage();
         saveToStorage('dataPackage', seed, client.package.exportPackage());
-
-        messages[player] = [];
-        client.messages.on('message', handleMessage);
 
         Object.keys(client.players.slots).forEach(([key]) => {
           const player = client.players.findPlayer(Number(key));
