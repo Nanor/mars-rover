@@ -2,6 +2,7 @@
   import { type Player } from 'archipelago.js';
   import PlayerComponent from '../players/Player.svelte';
   import type { ReceivedItem } from '$lib/archipelago.svelte';
+  import Item from './Item.svelte';
 
   const { items, players }: { items: ReceivedItem[]; players: Record<string, Player> } = $props();
 
@@ -57,7 +58,7 @@
         >
           <td><PlayerComponent player={players[item.receiver]} /></td>
           <td>{item.count}</td>
-          <td class="name">{item.name}</td>
+          <td><Item {item} /></td>
         </tr>
       {/each}
     </tbody>
@@ -75,18 +76,5 @@
     position: sticky;
     top: 0;
     background-color: white;
-  }
-
-  .filler .name {
-    color: cyan;
-  }
-  .useful .name {
-    color: blue;
-  }
-  .progression .name {
-    color: purple;
-  }
-  .trap .name {
-    color: red;
   }
 </style>

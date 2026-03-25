@@ -1,9 +1,9 @@
 import { Client, type DataPackage, type Item, type MessageNode, type Player } from 'archipelago.js';
 import { SvelteSet } from 'svelte/reactivity';
 
-type ArchipelagoClientConfig = {
+export type ArchipelagoClientConfig = {
   player: string;
-  password?: string;
+  password: string;
   host: string;
 };
 
@@ -43,6 +43,8 @@ export const createClient = () => {
   const players = $state<Record<string, Player>>({});
   const connections = $state<string[]>([]);
   const items = $state<ReceivedItem[]>([]);
+
+  let connected = $state(false);
 
   const connect = ({ player, host, password }: ArchipelagoClientConfig) => {
     if (connections.includes(player)) return;
@@ -89,6 +91,7 @@ export const createClient = () => {
         password: password || '',
       })
       .then(async () => {
+        connected = true;
         seed = client.room.seedName;
 
         const dataPackage = loadFromStorage<DataPackage>('dataPackage', seed);
@@ -152,6 +155,7 @@ export const createClient = () => {
     connections.splice(0, connections.length);
     Object.keys(players).forEach((player) => delete players[player]);
     Object.keys(messages).forEach((player) => delete messages[player]);
+    connected = false;
   };
 
   return {
@@ -168,6 +172,9 @@ export const createClient = () => {
     },
     get connections() {
       return connections;
+    },
+    get connected() {
+      return connected;
     },
     addPlayer: (player: string) => {
       if (clients.length === 0) {

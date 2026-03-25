@@ -6,7 +6,12 @@
   const {
     messages,
     players,
-  }: { messages: Record<string, MessageNode[][]>; players: Record<string, Player> } = $props();
+    connections,
+  }: {
+    messages: Record<string, MessageNode[][]>;
+    players: Record<string, Player>;
+    connections: string[];
+  } = $props();
 
   let activePlayer = $state('');
 
@@ -38,7 +43,7 @@
   {/each}
   <div class="log" bind:this={element}>
     {#each messages[activePlayer] as message, i (i)}
-      <Message parts={message} />
+      <Message parts={message} {connections} />
     {/each}
   </div>
 </div>

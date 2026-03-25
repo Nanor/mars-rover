@@ -1,15 +1,20 @@
 <script lang="ts">
   import { type MessageNode } from 'archipelago.js';
   import Player from '../players/Player.svelte';
+  import Item from '../items/Item.svelte';
 
-  const { parts }: { parts: MessageNode[] } = $props();
+  const { parts, connections }: { parts: MessageNode[]; connections: string[] } = $props();
   let element = $state<HTMLDivElement>();
 </script>
 
 <div bind:this={element}>
   {#each parts as part, i (i)}
     {#if part.type === 'player'}
-      <span class="player"><Player player={part.player} /></span>
+      <span class="player" class:connected={connections.includes(part.player.name)}>
+        <Player player={part.player} />
+      </span>
+    {:else if part.type === 'item'}
+      <Item item={part.item} />
     {:else}
       <span class={part.type}>{part.text}</span>
     {/if}
@@ -18,10 +23,10 @@
 
 <style>
   .player {
-    color: purple;
+    color: orange;
   }
-  .item {
-    color: blue;
+  .player.connected {
+    color: magenta;
   }
   .location {
     color: green;
