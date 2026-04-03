@@ -79,12 +79,7 @@
     </thead>
     <tbody>
       {#each filteredItems.toReversed() as item (`${item.id}-${item.receiver}`)}
-        <tr
-          class:filler={item.filler}
-          class:useful={item.useful}
-          class:progression={item.progression}
-          class:trap={item.trap}
-        >
+        <tr>
           <td><PlayerComponent player={players[item.receiver]} /></td>
           <td>{item.count}</td>
           <td><Item {item} /></td>
@@ -97,7 +92,7 @@
 <style>
   table {
     display: block;
-    height: 50vh;
+    height: 25vh;
     overflow-y: scroll;
   }
 

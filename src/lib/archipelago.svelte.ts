@@ -1,4 +1,12 @@
-import { Client, type DataPackage, type Item, type MessageNode, type Player } from 'archipelago.js';
+import {
+  Client,
+  Hint,
+  type DataPackage,
+  type Item,
+  type MessageNode,
+  type NetworkHint,
+  type Player,
+} from 'archipelago.js';
 import { SvelteSet } from 'svelte/reactivity';
 
 export type ArchipelagoClientConfig = {
@@ -43,11 +51,12 @@ export const createClient = () => {
   const players = $state<Record<string, Player>>({});
   const connections = $state<string[]>([]);
   const items = $state<ReceivedItem[]>([]);
+  const hints = $state<Hint[]>([]);
 
   let connected = $state(false);
 
   const connect = ({ player, host, password }: ArchipelagoClientConfig) => {
-    if (connections.includes(player)) return;
+    if (clients.find((c) => c.client.name === player)) return;
 
     const handleMessage = (_: string, nodes: MessageNode[]) => {
       messages[player].push(nodes);
@@ -81,6 +90,28 @@ export const createClient = () => {
 
     const handleAliasUpdated = (player: Player) => {
       players[player.name] = player;
+    };
+
+    const handleHints = (hs: Hint[]) => {
+      for (const hint of hs) {
+        const existingIndex = hints.findIndex(
+          (h) =>
+            h.item.locationId === hint.item.locationId &&
+            h.item.sender.slot === hint.item.sender.slot
+        );
+
+        if (existingIndex !== -1) {
+          hints.splice(existingIndex, 1, hint);
+        } else {
+          hints.push(hint);
+        }
+      }
+    };
+    const handleSetReply = (packet: import('archipelago.js').SetReplyPacket): void => {
+      if (packet.key === `_read_hints_${client.players.self.team}_${client.players.self.slot}`) {
+        const hints = packet.value as NetworkHint[];
+        handleHints(hints.map((h) => new Hint(client, h)));
+      }
     };
 
     const client = new Client();
@@ -120,6 +151,9 @@ export const createClient = () => {
         }
         handleItemsReceived(client.items.received, 0);
         client.items.on('itemsReceived', handleItemsReceived);
+        client.items.on('hintsInitialized', handleHints);
+
+        client.socket.on('setReply', handleSetReply);
 
         connections.push(player);
 
@@ -132,6 +166,13 @@ export const createClient = () => {
         }
 
         saveToStorage('connections', seed, connections);
+
+        client.socket.on('disconnected', () => {
+          clients = clients.filter((c) => c.client.name !== player);
+          if (clients.length === 0) {
+            connected = false;
+          }
+        });
       })
       .catch(console.error);
 
@@ -139,6 +180,8 @@ export const createClient = () => {
       client.messages.off('message', handleMessage);
       client.items.off('itemsReceived', handleItemsReceived);
       client.players.off('aliasUpdated', handleAliasUpdated);
+      client.items.off('hintsInitialized', handleHints);
+      client.socket.off('setReply', handleSetReply);
 
       client.socket.disconnect();
     };
@@ -176,6 +219,9 @@ export const createClient = () => {
     get connected() {
       return connected;
     },
+    get hints() {
+      return hints;
+    },
     addPlayer: (player: string) => {
       if (clients.length === 0) {
         throw new Error('Call connect first');
@@ -193,7 +239,9 @@ export const createClient = () => {
         }
       }
       clients = clients.filter((c) => c.client.name !== player);
-      connections.splice(connections.indexOf(player), 1);
+      if (connections.includes(player)) {
+        connections.splice(connections.indexOf(player), 1);
+      }
       saveToStorage('connections', seed, connections);
       delete messages[player];
     },
