@@ -45,6 +45,18 @@
   onclick={() => {
     goto(resolve('/'));
     client.disconnect();
-  }}>Back</button
+  }}>← Back</button
 >
 <Page {client} />
+
+<style>
+  button {
+    background: none;
+    border: none;
+    padding: 0.5em;
+  }
+
+  button:hover {
+    text-decoration: underline;
+  }
+</style>

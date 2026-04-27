@@ -7,10 +7,12 @@
   const {
     items,
     players,
+    groups,
     lookupItemName,
   }: {
     items: ReceivedItem[];
     players: Record<string, Player>;
+    groups: string[];
     lookupItemName: (game: string, id: number) => string;
   } = $props();
 
@@ -66,8 +68,7 @@
 </script>
 
 <div>
-  <div>
-    <h2>Items</h2>
+  <div class="filters">
     {#if filtersOpen}
       <button type="button" onclick={() => (filtersOpen = false)}>Close</button>
       <label><input type="checkbox" bind:checked={filters.trap} />Traps</label>
@@ -92,7 +93,7 @@
         <tr>
           <td><PlayerComponent player={players[item.receiver]} /></td>
           <td>{item.count}</td>
-          <td><Item {item} /></td>
+          <td><Item {item} {groups} /></td>
         </tr>
       {/each}
     </tbody>
@@ -100,19 +101,14 @@
 </div>
 
 <style>
-  table {
-    display: block;
-    height: 25vh;
-    overflow-y: scroll;
-  }
-
+  .filters,
   thead {
     position: sticky;
     top: 0;
-    background-color: white;
+    background-color: var(--clr-neutral-100);
   }
 
-  h2 {
-    display: inline-block;
+  thead {
+    top: 1.15lh;
   }
 </style>

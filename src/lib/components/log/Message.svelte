@@ -27,12 +27,12 @@
   }
 
   .player {
-    color: orange;
+    color: var(--clr-player);
   }
   .player.connected {
-    color: magenta;
+    color: var(--clr-connected);
   }
   .location {
-    color: green;
+    color: var(--clr-location);
   }
 </style>

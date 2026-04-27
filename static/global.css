@@ -6,13 +6,42 @@
 :root {
   interpolate-size: allow-keywords;
   font-family: sans-serif;
+
+  --clr-neutral-100: white;
+  --clr-neutral-500: oklab(70% 0 0);
+  --clr-neutral-900: black;
+
+  --clr-player: oklab(80% -0.02427 0.1664);
+  --clr-connected: oklab(75% 0.27463 -0.16927);
+  --clr-location: oklab(75% -0.14032 0.10763);
+  --clr-filler: oklab(80% -0.13599 -0.03615);
+  --clr-useful: oklab(60% 0.00297 -0.25204);
+  --clr-progression: oklab(40% 0.22766 -0.14091);
+  --clr-trap: oklab(60% 0.17662 0.09421);
+
+  --clr-group-0: #8f0c03ff;
+  --clr-group-1: #075886ff;
+  --clr-group-2: #276556ff;
+  --clr-group-3: #0091adff;
+  --clr-group-4: #938f0dff;
+  --clr-group-5: #febd4fff;
+  --clr-group-6: #f48032ff;
+  --clr-group-7: #fe5e5eff;
+  --clr-group-8: #eb6e94ff;
+  --clr-group-9: #950d56ff;
 }
 
 html {
   text-size-adjust: 100%;
+  background-color: var(--clr-neutral-100);
+  color: var(--clr-neutral-900)
 }
 
-h1, h2, h3, h4, h5 {
+h1,
+h2,
+h3,
+h4,
+h5 {
   overflow-wrap: break-word;
   text-wrap: balance;
 }
@@ -21,6 +50,8 @@ p {
   text-wrap: pretty;
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
   field-sizing: content;
 }

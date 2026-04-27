@@ -49,6 +49,7 @@ export const createClient = () => {
   const connections = $state<string[]>([]);
   const items = $state<ReceivedItem[]>([]);
   const hints = $state<Hint[]>([]);
+  const allGroups = $state<string[]>([]);
 
   let connected = $state(false);
 
@@ -151,6 +152,12 @@ export const createClient = () => {
           saveToStorage(`groups-${client.game}`, seed, groups);
         }
 
+        for (const g of Object.keys(groups)) {
+          if (!allGroups.includes(g)) {
+            allGroups.push(g);
+          }
+        }
+
         Object.keys(client.players.slots).forEach(([key]) => {
           const player = client.players.findPlayer(Number(key));
           if (player) {
@@ -238,6 +245,9 @@ export const createClient = () => {
     },
     get hints() {
       return hints;
+    },
+    get groups() {
+      return allGroups;
     },
     addPlayer: (player: string) => {
       if (clients.length === 0) {

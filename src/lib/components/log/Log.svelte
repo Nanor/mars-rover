@@ -30,8 +30,7 @@
   });
 </script>
 
-<div>
-  <h2>Log</h2>
+<div class="header">
   {#each Object.keys(messages) as name (name)}
     {#if activePlayer === name}
       <PlayerComponent player={players[name]} />
@@ -41,18 +40,17 @@
       </button>
     {/if}
   {/each}
-  <div class="log" bind:this={element}>
-    {#each messages[activePlayer] as message, i (i)}
-      <Message parts={message} {connections} />
-    {/each}
-  </div>
+</div>
+<div class="log" bind:this={element}>
+  {#each messages[activePlayer] as message, i (i)}
+    <Message parts={message} {connections} />
+  {/each}
 </div>
 
 <style>
-  .log {
-    height: 15lh;
-    overflow-y: scroll;
-
-    border: solid black 1px;
+  .header {
+    position: sticky;
+    top: 0;
+    background-color: var(--clr-neutral-100);
   }
 </style>
