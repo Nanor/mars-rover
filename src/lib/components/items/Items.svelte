@@ -1,10 +1,18 @@
 <script lang="ts">
-  import { type Player } from 'archipelago.js';
+  import { type Player } from '$lib/archipelago.svelte';
   import PlayerComponent from '../players/Player.svelte';
   import type { ReceivedItem } from '$lib/archipelago.svelte';
   import Item from './Item.svelte';
 
-  const { items, players }: { items: ReceivedItem[]; players: Record<string, Player> } = $props();
+  const {
+    items,
+    players,
+    lookupItemName,
+  }: {
+    items: ReceivedItem[];
+    players: Record<string, Player>;
+    lookupItemName: (game: string, id: number) => string;
+  } = $props();
 
   type ItemRow = {
     id: number;
@@ -15,6 +23,7 @@
     useful: boolean;
     progression: boolean;
     trap: boolean;
+    groups: string[];
   };
 
   const received = $derived(
@@ -26,6 +35,7 @@
         ...rest,
         {
           ...item,
+          name: lookupItemName(item.game, item.id),
           count: prev ? prev.count + 1 : 1,
           filler: prev?.filler || item.filler,
           useful: prev?.useful || item.useful,

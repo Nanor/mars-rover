@@ -5,6 +5,7 @@
     useful: boolean;
     progression: boolean;
     trap: boolean;
+    groups?: string[];
   };
 
   const { item }: { item: Item } = $props();
@@ -19,14 +20,20 @@
   );
 </script>
 
-<span
-  class:filler={item.filler}
-  class:useful={item.useful}
-  class:progression={item.progression}
-  class:trap={item.trap}
-  title={`Item class: ${itemClass}`}
->
-  {item.name}
+<span>
+  <span
+    class:filler={item.filler}
+    class:useful={item.useful}
+    class:progression={item.progression}
+    class:trap={item.trap}
+    title={`Item class: ${itemClass}`}
+  >
+    {item.name}
+  </span>
+
+  {#each item.groups as group (group)}
+    <span>({group})</span>
+  {/each}
 </span>
 
 <style>

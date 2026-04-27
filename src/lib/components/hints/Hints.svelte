@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Hint } from 'archipelago.js';
+  import { HintStatus, type Hint } from '$lib/archipelago.svelte';
 
   import PlayerComponent from '../players/Player.svelte';
   import Item from '../items/Item.svelte';
@@ -19,7 +19,8 @@
         <th>Item</th>
         <th>Sender</th>
         <th>Location</th>
-        <th>Found</th>
+        <th>Entrance</th>
+        <th>Status</th>
       </tr>
     </thead>
     <tbody>
@@ -29,7 +30,18 @@
           <td><Item item={hint.item} /></td>
           <td><PlayerComponent player={hint.item.sender} /></td>
           <td>{hint.item.locationName}</td>
-          <td>{hint.found ? '✔️' : 'X'}</td>
+          <td>{hint.entrance}</td>
+          <td
+            >{hint.status === HintStatus.found
+              ? 'Found'
+              : hint.status === HintStatus.priority
+                ? 'Priority'
+                : hint.status === HintStatus.no_priority
+                  ? 'No Priority'
+                  : hint.status === HintStatus.avoid
+                    ? 'Avoid'
+                    : 'Unspecified'}</td
+          >
         </tr>
       {/each}
     </tbody>

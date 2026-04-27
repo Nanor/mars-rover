@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Player, MessageNode } from 'archipelago.js';
+  import type { Player, MessageNode } from '$lib/archipelago.svelte';
   import Message from './Message.svelte';
   import PlayerComponent from '../players/Player.svelte';
 

@@ -1,12 +1,5 @@
-import {
-  Client,
-  Hint,
-  type DataPackage,
-  type Item,
-  type MessageNode,
-  type NetworkHint,
-  type Player,
-} from 'archipelago.js';
+import type { DataPackage, NetworkHint, SetReplyPacket } from 'archipelago.js/src/api';
+import { Client, Hint, type Item, type MessageNode, type Player } from 'archipelago.js/src/index';
 import { SvelteSet } from 'svelte/reactivity';
 
 export type ArchipelagoClientConfig = {
@@ -18,13 +11,17 @@ export type ArchipelagoClientConfig = {
 export type ReceivedItem = {
   id: number;
   receiver: string;
-  name: string;
   orderReceived: number;
   filler: boolean;
   useful: boolean;
   progression: boolean;
   trap: boolean;
+  game: string;
+  groups: string[];
 };
+
+export type { Hint, Player, MessageNode } from 'archipelago.js/src/index';
+export { HintStatus } from 'archipelago.js/src/api';
 
 const saveToStorage = (type: string, seed: string, data: object) => {
   localStorage.setItem(`${type}-${seed}`, JSON.stringify(data));
@@ -58,6 +55,8 @@ export const createClient = () => {
   const connect = ({ player, host, password }: ArchipelagoClientConfig) => {
     if (clients.find((c) => c.client.name === player)) return;
 
+    let groups: Record<string, string[]>;
+
     const handleMessage = (_: string, nodes: MessageNode[]) => {
       messages[player].push(nodes);
     };
@@ -73,12 +72,15 @@ export const createClient = () => {
           items.push({
             id: item.id,
             receiver: item.receiver.name,
-            name: item.name,
             orderReceived: index,
             filler: item.filler,
             useful: item.useful,
             progression: item.progression,
             trap: item.trap,
+            game: item.game,
+            groups: Object.entries(groups)
+              .filter(([_k, v]) => v.includes(item.name))
+              .map(([k]) => k),
           });
         }
 
@@ -107,7 +109,7 @@ export const createClient = () => {
         }
       }
     };
-    const handleSetReply = (packet: import('archipelago.js').SetReplyPacket): void => {
+    const handleSetReply = (packet: SetReplyPacket): void => {
       if (packet.key === `_read_hints_${client.players.self.team}_${client.players.self.slot}`) {
         const hints = packet.value as NetworkHint[];
         handleHints(hints.map((h) => new Hint(client, h)));
@@ -135,6 +137,20 @@ export const createClient = () => {
         await client.package.fetchPackage();
         saveToStorage('dataPackage', seed, client.package.exportPackage());
 
+        const storedGroups = loadFromStorage<Record<string, string[]>>(
+          `groups-${client.game}`,
+          seed
+        );
+        if (storedGroups) {
+          groups = storedGroups;
+        } else {
+          const data = await client.storage.fetchItemNameGroups(client.game);
+          groups = Object.values(data)[0] as unknown as Record<string, string[]>;
+          delete groups['Everything'];
+
+          saveToStorage(`groups-${client.game}`, seed, groups);
+        }
+
         Object.keys(client.players.slots).forEach(([key]) => {
           const player = client.players.findPlayer(Number(key));
           if (player) {
@@ -151,8 +167,9 @@ export const createClient = () => {
         }
         handleItemsReceived(client.items.received, 0);
         client.items.on('itemsReceived', handleItemsReceived);
-        client.items.on('hintsInitialized', handleHints);
 
+        handleHints(client.items.hints);
+        client.items.on('hintsInitialized', handleHints);
         client.socket.on('setReply', handleSetReply);
 
         connections.push(player);
@@ -244,6 +261,9 @@ export const createClient = () => {
       }
       saveToStorage('connections', seed, connections);
       delete messages[player];
+    },
+    lookupItemName(game: string, id: number) {
+      return clients[0].client.package.lookupItemName(game, id);
     },
   };
 };

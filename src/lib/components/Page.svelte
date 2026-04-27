@@ -6,7 +6,7 @@
   import Hints from './hints/Hints.svelte';
 
   const { client }: { client: ReturnType<typeof createClient> } = $props();
-  const { messages, players, items, connections, hints, addPlayer, removePlayer } =
+  const { messages, players, items, connections, hints, addPlayer, removePlayer, lookupItemName } =
     $derived(client);
 
   const shownItems = $derived(items.filter((i) => connections.includes(i.receiver)));
@@ -21,7 +21,7 @@
 <div class="container">
   <div class="main">
     <Log {messages} {players} {connections} />
-    <Items items={shownItems} {players} />
+    <Items items={shownItems} {players} {lookupItemName} />
     <Hints hints={shownHints} />
   </div>
   <div class="players">
@@ -34,6 +34,11 @@
     display: flex;
     flex-direction: row;
   }
+
+  .main {
+    flex-grow: 1;
+  }
+
   .players {
     width: 300px;
   }

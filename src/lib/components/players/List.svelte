@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Player } from 'archipelago.js';
+  import type { Player } from '$lib/archipelago.svelte';
   import PlayerComponent from './Player.svelte';
 
   const {

@@ -9,6 +9,4 @@
   <link rel="icon" href={favicon} />
 </svelte:head>
 
-<h1>MARS Rover</h1>
-
 {@render children()}

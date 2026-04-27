@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { type MessageNode } from 'archipelago.js';
+  import { type MessageNode } from '$lib/archipelago.svelte';
   import Player from '../players/Player.svelte';
   import Item from '../items/Item.svelte';
 
@@ -22,6 +22,10 @@
 </div>
 
 <style>
+  div {
+    margin-block-end: 0.2em;
+  }
+
   .player {
     color: orange;
   }

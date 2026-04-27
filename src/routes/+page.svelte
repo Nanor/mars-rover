@@ -1,6 +1,11 @@
 <script lang="ts">
+  import { goto } from '$app/navigation';
+  import { resolve } from '$app/paths';
+  import { page } from '$app/state';
   import { createClient } from '$lib/archipelago.svelte';
+  import Login from '$lib/components/Login.svelte';
   import Page from '$lib/components/Page.svelte';
+  import { onMount } from 'svelte';
 
   const client = createClient();
 
@@ -16,44 +21,30 @@
       const player = (data.get('player') as string) || 'Player1';
       const host = (data.get('host') as string) || 'localhost:38281';
       const password = (data.get('password') as string) || '';
+
+      goto(resolve(`/?${new URLSearchParams({ player, host, password }).toString()}`));
       client.connect({ player, host, password });
     }
   };
+
+  onMount(() => {
+    const player = page.url.searchParams.get('player') || '';
+    const host = page.url.searchParams.get('host') || '';
+    const password = page.url.searchParams.get('password') || '';
+
+    if (player && host) {
+      client.connect({ player, host, password });
+    }
+  });
 </script>
 
-{#if !client.connected}
-  <form onsubmit={handleSubmit}>
-    <label>
-      <span>Player:</span>
-      <input type="text" name="player" placeholder="Player1" autocomplete="username" />
-    </label>
-    <label>
-      <span>Host:</span>
-      <input type="text" name="host" placeholder="localhost:38281" autocomplete="url" />
-    </label>
-    <label>
-      <span>Password:</span>
-      <input
-        type="password"
-        name="password"
-        placeholder="Password"
-        autocomplete="current-password"
-      />
-    </label>
-    <button type="submit">Connect</button>
-  </form>
-{:else}
-  <button type="button" onclick={() => client.disconnect()}>Back</button>
-  <Page {client} />
-{/if}
+<Login open={!client.connected} onsubmit={handleSubmit} />
 
-<style>
-  form > * {
-    display: block;
-  }
-
-  form span {
-    display: inline-block;
-    width: 75px;
-  }
-</style>
+<button
+  type="button"
+  onclick={() => {
+    goto(resolve('/'));
+    client.disconnect();
+  }}>Back</button
+>
+<Page {client} />
