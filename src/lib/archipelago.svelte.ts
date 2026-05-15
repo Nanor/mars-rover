@@ -158,7 +158,7 @@ export const createClient = () => {
           }
         }
 
-        Object.keys(client.players.slots).forEach(([key]) => {
+        Object.keys(client.players.slots).forEach((key) => {
           const player = client.players.findPlayer(Number(key));
           if (player) {
             players[player.name] = player;

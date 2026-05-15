@@ -8,7 +8,7 @@
     groups?: string[];
   };
 
-  const { item, groups }: { item: Item; groups: string[] } = $props();
+  const { item, groups }: { item: Item; groups?: string[] } = $props();
 
   const itemClass = $derived(
     [
@@ -32,9 +32,12 @@
   </span>
 
   {#each item.groups as group (group)}
-    <span class="group" style="--group-color:var(--clr-group-{groups.indexOf(group) % 10})"
-      >{group}</span
+    <span
+      class="group"
+      style={groups ? `--_group-color:var(--clr-group-${groups.indexOf(group) % 10})` : ''}
     >
+      {group}
+    </span>
   {/each}
 </span>
 
@@ -42,19 +45,22 @@
   .filler {
     color: var(--clr-filler);
   }
+
   .useful {
     color: var(--clr-useful);
   }
+
   .progression {
     color: var(--clr-progression);
   }
+
   .trap {
     color: var(--clr-trap);
   }
 
   .group {
     color: var(--clr-neutral-100);
-    background-color: var(--group-color);
+    background-color: var(--_group-color, var(--clr-group-0));
     border-radius: 100vh;
     padding-block: 0.2em;
     padding-inline: 0.4em;
