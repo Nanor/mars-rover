@@ -42,13 +42,14 @@
     position: relative;
 
     height: 0;
-    transition: height 0.25s;
+    transition:
+      height 0.25s,
+      flex-basis 0.25s;
   }
 
   div.open {
-    flex-basis: max-content;
+    flex-basis: 100vh;
     overflow: scroll;
     height: max-content;
-    min-height: 25vh;
   }
 </style>

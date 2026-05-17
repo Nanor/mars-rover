@@ -54,14 +54,16 @@
 
     <input type="text" placeholder="Search players" bind:value={searchValue} />
 
-    {#each disconnectedPlayers as player (player.slot)}
-      <div>
-        <button type="button" onclick={() => addPlayer(player.name)} aria-label="Connect">
-          +
-        </button>
-        <PlayerComponent {player} />
-      </div>
-    {/each}
+    <div class="disconnected">
+      {#each disconnectedPlayers as player (player.slot)}
+        <div>
+          <button type="button" onclick={() => addPlayer(player.name)} aria-label="Connect">
+            +
+          </button>
+          <PlayerComponent {player} />
+        </div>
+      {/each}
+    </div>
   </div>
 </div>
 
@@ -97,6 +99,11 @@
 
   .content {
     transition: width 0.25s;
+    width: max-content;
+
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 2.5lh);
   }
 
   .content:not(.open) {
@@ -108,5 +115,10 @@
     width: 100%;
     border-bottom: solid 1px grey;
     margin-block: 8px;
+  }
+
+  .disconnected {
+    flex-shrink: 1;
+    overflow-y: scroll;
   }
 </style>

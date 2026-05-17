@@ -5,6 +5,14 @@
   import Item from '../items/Item.svelte';
 
   const { hints }: { hints: Hint[] } = $props();
+
+  const sortedHints = $derived(
+    hints.toSorted(
+      (a, b) =>
+        (b.status === HintStatus.found ? -10 : b.status) -
+        (a.status === HintStatus.found ? -10 : a.status)
+    )
+  );
 </script>
 
 <table>
@@ -19,24 +27,22 @@
     </tr>
   </thead>
   <tbody>
-    {#each hints as hint (`${hint.item.locationId}-${hint.item.sender.slot}`)}
-      <tr>
+    {#each sortedHints as hint (`${hint.item.locationId}-${hint.item.sender.slot}`)}
+      <tr class:found={hint.status === HintStatus.found}>
         <td><PlayerComponent player={hint.item.receiver} /></td>
         <td><Item item={hint.item} /></td>
         <td><PlayerComponent player={hint.item.sender} /></td>
         <td>{hint.item.locationName}</td>
         <td>{hint.entrance}</td>
-        <td
-          >{hint.status === HintStatus.found
-            ? 'Found'
-            : hint.status === HintStatus.priority
-              ? 'Priority'
-              : hint.status === HintStatus.no_priority
-                ? 'No Priority'
-                : hint.status === HintStatus.avoid
-                  ? 'Avoid'
-                  : 'Unspecified'}</td
-        >
+        <td>
+          {{
+            [HintStatus.found]: 'Found',
+            [HintStatus.priority]: 'Priority',
+            [HintStatus.no_priority]: 'No Priority',
+            [HintStatus.avoid]: 'Avoid',
+            [HintStatus.unspecified]: 'Unspecified',
+          }[hint.status]}
+        </td>
       </tr>
     {/each}
   </tbody>
@@ -47,5 +53,9 @@
     position: sticky;
     top: 0;
     background-color: var(--clr-neutral-100);
+  }
+
+  .found {
+    text-decoration: line-through;
   }
 </style>
