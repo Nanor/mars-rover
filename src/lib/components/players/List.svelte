@@ -120,5 +120,6 @@
   .disconnected {
     flex-shrink: 1;
     overflow-y: scroll;
+    width: max-content;
   }
 </style>
