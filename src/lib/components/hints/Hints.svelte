@@ -65,10 +65,6 @@
 </table>
 
 <style>
-  .found {
-    text-decoration: line-through;
-  }
-
   .location {
     color: var(--clr-location);
   }
@@ -83,7 +79,9 @@
   .separator td {
     border-bottom: solid 1px var(--clr-neutral-500);
   }
-  .separator + .separator {
+  .separator + .separator,
+  .separator:first-child,
+  .separator:last-child {
     display: none;
   }
 </style>

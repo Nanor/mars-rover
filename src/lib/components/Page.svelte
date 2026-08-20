@@ -29,7 +29,7 @@
 </script>
 
 <div class="container">
-  <div class="main">
+  <main>
     <Section title="Messages">
       <Log {messages} {players} {connections} />
     </Section>
@@ -39,7 +39,7 @@
     <Section title="Hints">
       <Hints hints={shownHints} {connections} />
     </Section>
-  </div>
+  </main>
   <Players {players} {connections} {addPlayer} {removePlayer} />
 </div>
 
@@ -47,14 +47,14 @@
   .container {
     display: flex;
     flex-direction: row;
+    gap: 2px;
   }
 
-  .main {
+  main {
     flex-grow: 1;
     height: calc(100dvh - 50px);
 
     display: flex;
     flex-direction: column;
-    align-content: flex-start;
   }
 </style>

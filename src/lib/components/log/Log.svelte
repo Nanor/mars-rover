@@ -50,7 +50,7 @@
 <style>
   .header {
     position: sticky;
-    top: 0;
+    top: 24px;
     background-color: var(--clr-neutral-100);
   }
 </style>

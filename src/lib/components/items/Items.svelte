@@ -104,11 +104,13 @@
   .filters,
   thead {
     position: sticky;
-    top: 0;
     background-color: var(--clr-neutral-100);
   }
 
+  .filters {
+    top: 24px;
+  }
   thead {
-    top: 1.15lh;
+    top: 47px;
   }
 </style>
