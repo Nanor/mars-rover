@@ -37,7 +37,7 @@
       <Items items={shownItems} {players} {lookupItemName} {groups} />
     </Section>
     <Section title="Hints">
-      <Hints hints={shownHints} />
+      <Hints hints={shownHints} {connections} />
     </Section>
   </div>
   <Players {players} {connections} {addPlayer} {removePlayer} />

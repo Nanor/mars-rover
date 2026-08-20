@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { page } from '$app/state';
+
   const {
     onsubmit,
     open,
@@ -13,9 +15,17 @@
 
   let dialog = $state<HTMLDialogElement>();
 
+  let player = $state('');
+  let host = $state('');
+  let password = $state('');
+
   $effect(() => {
     if (open) {
       dialog?.showModal();
+
+      player = page.url.searchParams.get('player') || '';
+      host = page.url.searchParams.get('host') || '';
+      password = page.url.searchParams.get('password') || '';
     } else {
       dialog?.close();
     }
@@ -26,11 +36,23 @@
   <form {onsubmit} method="dialog">
     <label>
       <span>Player:</span>
-      <input type="text" name="player" placeholder="Player1" autocomplete="username" />
+      <input
+        type="text"
+        name="player"
+        placeholder="Player1"
+        autocomplete="username"
+        bind:value={player}
+      />
     </label>
     <label>
       <span>Host:</span>
-      <input type="text" name="host" placeholder="localhost:38281" autocomplete="url" />
+      <input
+        type="text"
+        name="host"
+        placeholder="localhost:38281"
+        autocomplete="url"
+        bind:value={host}
+      />
     </label>
     <label>
       <span>Password:</span>
@@ -39,6 +61,7 @@
         name="password"
         placeholder="Password"
         autocomplete="current-password"
+        bind:value={password}
       />
     </label>
     <button type="submit">Connect</button>
